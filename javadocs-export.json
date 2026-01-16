@@ -1,0 +1,807 @@
+{
+  "metadata": {
+    "formatVersion": "1.0",
+    "generatedFrom": "source-export",
+    "timestamp": 1768540903340
+  },
+  "entries": [
+    {
+      "hash": "560f97c8848eaed55b95ab2b353d02d61a242ea432071110753c84705fb86c07",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.Archetype:EXTENDS::IMPLEMENTS:Query",
+      "javadoc": "Represents a unique combination of component types.\r\n\r\n\u003cp\u003eArchetypes are the backbone of the ECS storage model. Every entity in a {@link Store}\r\nis associated with an Archetype, which determines its memory layout and which systems\r\ncan process it. Archetypes are immutable; adding or removing components creates a\r\nnew Archetype instance.\r\n\r\n\u003cp\u003eImplements {@link Query} as a shorthand for \"any entity containing all components\r\nin this archetype.\"\r\n"
+    },
+    {
+      "hash": "ddc46b92b1efd8134d7151c6303e4b5c4fae05242cc332f9503f908ca272a992",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.ArchetypeChunk:EXTENDS::IMPLEMENTS:",
+      "javadoc": "A contiguous storage block for entities sharing the same {@link Archetype}.\r\n\r\n\u003cp\u003eArchetypeChunks provide high-performance component storage using a Data Oriented\r\nDesign (SoA - Structure of Arrays). Each component type in the archetype is\r\nstored in its own array, allowing systems to iterate over components of a\r\nspecific type with maximum cache efficiency.\r\n\r\n\u003cp\u003eEntities within a chunk are identified by their index. When an entity is removed,\r\nthe last entity in the chunk is moved to its position to keep the storage tight.\r\n"
+    },
+    {
+      "hash": "6ddf575eedde6c01de86ed4ad8c8d84f8ad7ada20022eee4b6ac707bfe396c80",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.CommandBuffer:EXTENDS::IMPLEMENTS:ComponentAccessor",
+      "javadoc": "Queues entity and component modifications for deferred execution on the Store thread.\r\n\r\n\u003cp\u003eSince {@link Store} is not thread-safe and must be modified from its owner thread,\r\nthe CommandBuffer provides a way for other threads (or parallel systems) to request\r\nchanges like adding/removing components or spawning entities.\r\n\r\n\u003cp\u003eCommands recorded in the buffer are executed in order when the buffer is\r\nconsumed. It also implements {@link ComponentAccessor} to allow read-access to the\r\nstore during command recording.\r\n"
+    },
+    {
+      "hash": "c3cc6713aac23865a131a5e73ab5f2507ebb68efcf8192a0801fb38a1b802a15",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.Component:EXTENDS:Cloneable:IMPLEMENTS:",
+      "javadoc": "Base interface for all components within the ECS.\r\n\r\n\u003cp\u003eComponents are data containers attached to entities within a {@link Store}.\r\nThey should ideally contain only state, with logic residing in systems. The\r\n{@code ECS_TYPE} parameter binds the component to a specific ECS domain.\r\n"
+    },
+    {
+      "hash": "1b65714ec9dbb23624e2c18ef5f844b43df86ed13791576ca7b234bab491704c",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.ComponentAccessor:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Unified interface for accessing and modifying components and entities within a store.\r\n\r\n\u003cp\u003eImplemented by both {@link Store} (direct access) and {@link CommandBuffer}\r\n(deferred access). This allows systems to be written against a common API\r\nregardless of whether they are running on the store thread or in parallel.\r\n"
+    },
+    {
+      "hash": "7397de2536b1b8190c94db4e7a8ea15b8fe4a6483d755affb236e3fb9379b203",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.ComponentRegistry:EXTENDS::IMPLEMENTS:IComponentRegistry",
+      "javadoc": "Central registry for all component types, systems, and resource types within an ECS domain.\r\n\r\n\u003cp\u003eThe ComponentRegistry manages the static schema of an ECS domain. It handles\r\nthe registration of {@link ComponentType}s, {@link SystemType}s, and {@link ResourceType}s.\r\nIt also maintains the collection of active {@link Store}s associated with this registry.\r\n\r\n\u003cp\u003eWhen components or systems are registered or unregistered, the registry rebuilds\r\nits internal {@link Data} view, which is then propagated to all associated stores.\r\nThis ensures that stores always have an up-to-date view of the ECS topology.\r\n"
+    },
+    {
+      "hash": "f0ca2f3076fae70e256df3a8825fd0cb5b9cef612281f42c08396d61cfc976fc",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.Data:EXTENDS::IMPLEMENTS:",
+      "javadoc": "An immutable snapshot of the {@link ComponentRegistry} schema.\r\n\r\n\u003cp\u003eThe Data class provides a thread-safe, read-only view of all registered\r\ncomponent types, system types, and codecs. It is updated whenever the\r\nregistry state changes and propagated to all associated stores to ensure\r\nconsistency during multi-threaded access.\r\n"
+    },
+    {
+      "hash": "d4127dcc67549f91df85c1bf6e8bf59cc053bafc585f8864dcbf4efda2a5ac79",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.ComponentRegistryProxy:EXTENDS::IMPLEMENTS:IComponentRegistry",
+      "javadoc": "A proxy implementation of {@link IComponentRegistry} that tracks registrations\r\nand allows for bulk unregistration.\r\n\r\n\u003cp\u003eThis is typically used by plugins to register their own component, resource,\r\nand system types. When the plugin is disabled or unloaded, the proxy can\r\nautomatically unregister all its contributions from the main {@link ComponentRegistry}.\r\n"
+    },
+    {
+      "hash": "fb1c4231bd1b02e1d3cf4494066bebe29071020a19531d909ec79b4356fad2e1",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.ComponentType:EXTENDS::IMPLEMENTS:Comparable,Query",
+      "javadoc": "A unique identifier and metadata for a specific type of component.\r\n\r\n\u003cp\u003eEach ComponentType is registered within a {@link ComponentRegistry} and\r\nassigned a unique index. This index is used to look up component data within\r\nan {@link ArchetypeChunk}.\r\n\r\n\u003cp\u003eComponentTypes also implement {@link Query}, allowing them to be used as a\r\nfilter for entities that possess a component of this type.\r\n"
+    },
+    {
+      "hash": "7443d7cd74f44c62bed6a45da46361ea35909d0e4562f816584b311621e73636",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.dependency.Dependency:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Base class for defining execution order constraints between ECS systems.\r\n\r\n\u003cp\u003eDependencies allow systems to specify that they must run before or after\r\nother systems, specific system types, or entire system groups. This is used\r\nby the {@link DependencyGraph} to build a valid execution order.\r\n"
+    },
+    {
+      "hash": "cd0c26d59ee2b2a1cfd0753d578d7af7c6da6124d9c5b2fba80d0d7f87a46ed5",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.dependency.DependencyGraph:EXTENDS::IMPLEMENTS:",
+      "javadoc": "A directed graph used to resolve and sort ECS systems based on their dependencies.\r\n\r\n\u003cp\u003eThe graph takes a set of systems and their declared {@link Dependency} constraints,\r\nresolves them into edges, and performs a topological sort to find a stable\r\nexecution order for the ECS tick.\r\n"
+    },
+    {
+      "hash": "0908762a69e8ddd12421d00e750f8f843e185231d298adce7a07a59cd5846867",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.event.EntityEventType:EXTENDS:EventSystemType:IMPLEMENTS:",
+      "javadoc": "Identifier for an ECS event type that is dispatched on a per-entity basis.\r\n"
+    },
+    {
+      "hash": "4319712b34d3b093b37b3ec37cd1d165dbe388ce62070520367bb0c18002dca2",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.event.EventSystemType:EXTENDS:SystemType:IMPLEMENTS:",
+      "javadoc": "Base class for ECS system types that handle specific {@link EcsEvent} types.\r\n"
+    },
+    {
+      "hash": "2ee50f55043499c508318f70a9d0b081e0ce5d3103d20e8fe840b520dfab008e",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.event.WorldEventType:EXTENDS:EventSystemType:IMPLEMENTS:",
+      "javadoc": "Identifier for an ECS event type that is dispatched globally within a store.\r\n"
+    },
+    {
+      "hash": "e84a88cde11e6d5eaec0183f4c2b6dc0a32ee048c0e27e90ff2aae83bddc15ce",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.Holder:EXTENDS::IMPLEMENTS:",
+      "javadoc": "A mutable container for an entity\u0027s components, used for transport and initialization.\r\n\r\n\u003cp\u003eHolders act as templates or \"detached\" entities. They are used to group a set\r\nof components together before they are added to a {@link Store}, or to hold\r\ncomponents after an entity has been removed. Unlike {@link Ref}, a Holder\r\ncontains the actual component data and can be modified independently of any Store.\r\n\r\n\u003cp\u003eHolders are thread-safe and use an internal lock to manage concurrent access\r\nto their component collection.\r\n"
+    },
+    {
+      "hash": "e7fb0c9cdc5312c2900bfec15bd00b569570f5ab2bc904f3a2aa45f135824c80",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.IComponentRegistry:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Interface definition for an ECS component and system registry.\r\n\r\n\u003cp\u003eThis interface defines the contract for registering all core ECS elements,\r\nincluding components, resources, systems, and event types. It\u0027s primarily\r\nimplemented by {@link ComponentRegistry}.\r\n"
+    },
+    {
+      "hash": "2aef3ef0d6f683732829f69df0ed4e5a64fcd58399e40e1bfb7a63bba047a150",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.IResourceStorage:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Interface for loading, saving, and removing ECS resource data.\r\n\r\n\u003cp\u003eResources are domain-wide data (like world settings or shared systems data)\r\nthat need to be persisted or loaded asynchronously. implementations of this\r\ninterface handle the actual I/O operations.\r\n"
+    },
+    {
+      "hash": "56f32168520b72cdfbbe865e91fbd49ba494d1d42e19fcd152525b1844d77166",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.metric.ArchetypeChunkData:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Data record for metrics related to an {@link ArchetypeChunk}.\r\n"
+    },
+    {
+      "hash": "7a9b4f4fce72312099762fc6600ab10caff280db6b9ea4c6074454b34b78fa61",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.metric.SystemMetricData:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Data record for metrics related to an ECS system.\r\n"
+    },
+    {
+      "hash": "7d0d203b8373ceb9869087a8cf9b07be5c47c610d564e40cbea8f910f6fcafd5",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.NonSerialized:EXTENDS::IMPLEMENTS:Component",
+      "javadoc": "Marker component indicating an entity should not be serialized to disk.\r\n\r\n\u003cp\u003eEntities with this component are excluded from save operations. Useful for\r\ntransient entities like visual effects or temporary debug markers.\r\n"
+    },
+    {
+      "hash": "24823048f96e510892592710a7cebe36740601919cc99de3c215cef3daf759aa",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.NonTicking:EXTENDS::IMPLEMENTS:Component",
+      "javadoc": "Marker component that excludes entities from {@link com.hypixel.hytale.component.system.tick.TickingSystem}\r\nprocessing.\r\n\r\n\u003cp\u003eWhen an entity has this component, it will be filtered out from all ticking systems\r\nunless they explicitly opt-in via {@code isExplicitQuery()}.\r\n"
+    },
+    {
+      "hash": "0d48094e0bbcbb96939b57434d0f48a63a57842e93b977fc73744fd469df8859",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.query.AndQuery:EXTENDS::IMPLEMENTS:Query",
+      "javadoc": "A composite query that matches if all its sub-queries match.\r\n"
+    },
+    {
+      "hash": "efba70cef026ac67a066a90fa432f4c85a0a0d4b436bed7a7b216f96869765c9",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.query.AnyQuery:EXTENDS::IMPLEMENTS:Query",
+      "javadoc": "A query that matches all entities unconditionally.\r\n"
+    },
+    {
+      "hash": "9648287694a5332bdcc29981582ea836b5b5974d8b8fc27272e8dcbdb85b08a0",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.query.ExactArchetypeQuery:EXTENDS::IMPLEMENTS:Query",
+      "javadoc": "A query that matches entities having exactly the specified {@link Archetype}.\r\n\r\n\u003cp\u003eUnlike a standard archetype query which matches if an entity has \u003ci\u003eat least\u003c/i\u003e\r\nthe requested components, this query requires an exact identity match on the archetype.\r\n"
+    },
+    {
+      "hash": "1f73ecce0f80ad66daabd028e8d8566aaf38ee6fcdf7f162cb6e81c81c740607",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.query.NotQuery:EXTENDS::IMPLEMENTS:Query",
+      "javadoc": "A query that inverts the result of its sub-query.\r\n"
+    },
+    {
+      "hash": "67974d060c3a5ca5294a80e6c7392b8c7d9a38bf2fd2be2ac6dbcdaf06441ad0",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.query.OrQuery:EXTENDS::IMPLEMENTS:Query",
+      "javadoc": "A composite query that matches if any of its sub-queries match.\r\n"
+    },
+    {
+      "hash": "248a339fe749d959f72359ecc59cf6c42896939624dd530b4f241862f15a7d4b",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.query.Query:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Interface for filtering entities based on their {@link Archetype}.\r\n\r\n\u003cp\u003eQueries are used by systems and stores to efficiently find or filter\r\nentities that possess a specific combination of components. They can be\r\ncomposed using boolean logic (AND, OR, NOT).\r\n"
+    },
+    {
+      "hash": "50194ddd7009853638c459bfe3bfaf7873a53746086dac32ca15e96f691db61f",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.query.ReadWriteArchetypeQuery:EXTENDS:Query:IMPLEMENTS:",
+      "javadoc": "A query that distinguishes between components being read and components being modified.\r\n\r\n\u003cp\u003eUsed by the parallel scheduler to determine which systems can run concurrently.\r\nSystems with overlapping \"write\" archetypes or \"read/write\" conflicts must\r\nbe serialized.\r\n"
+    },
+    {
+      "hash": "9566b668b9b987eb7201f2b5eb7aa04b0e42c29e37c3e379b15806fa168e8995",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.ReadWriteQuery:EXTENDS::IMPLEMENTS:ReadWriteArchetypeQuery",
+      "javadoc": "Standard implementation of a {@link ReadWriteArchetypeQuery}.\r\n\r\n\u003cp\u003eSpecifies two archetypes: one containing components that will only be read,\r\nand another containing components that may be modified.\r\n"
+    },
+    {
+      "hash": "616fc0cc8e661c6aad6e2213433d7a81e6e194cd9809395ff33dace9a30acd52",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.Ref:EXTENDS::IMPLEMENTS:",
+      "javadoc": "A stable, type-safe handle to an entity within a {@link Store}.\r\n\r\n\u003cp\u003eUnlike raw entity indices which can be reused after an entity is destroyed,\r\na {@code Ref} is invalidated when its entity is removed from the store. This\r\nprovides a safe way to store references to entities across ticks or in\r\ncomponents without risking \"zombie\" entity access.\r\n\r\n\u003cp\u003eReferences are specific to a single Store instance and maintain the entity\u0027s\r\ncurrent index within that store.\r\n"
+    },
+    {
+      "hash": "60b7b8a3ad0f42d1757125925ab59ea50fccb28b0585cf196b60d82663d1e753",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.Resource:EXTENDS:Cloneable:IMPLEMENTS:",
+      "javadoc": "Base interface for domain-wide data containers within an ECS Store.\r\n\r\n\u003cp\u003eUnlike components, which are attached to specific entities, resources\r\nare singleton-like objects that provide global state or shared data for\r\nall systems within a {@link Store}.\r\n"
+    },
+    {
+      "hash": "3643073f601794eeebad70a51c782ebe2e9f64252d5c9fe013bb6e1dfdafbe4f",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.ResourceType:EXTENDS::IMPLEMENTS:Comparable",
+      "javadoc": "A unique identifier and metadata for a specific type of resource.\r\n\r\n\u003cp\u003eEach ResourceType is registered within a {@link ComponentRegistry} and\r\nassigned a unique index. This index is used to look up resource data within\r\na {@link Store}.\r\n"
+    },
+    {
+      "hash": "f393429f7e1ef95fcc2cf25d9334cb951f3f730021294f37024091fe7835be88",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.spatial.SpatialResource:EXTENDS::IMPLEMENTS:Resource",
+      "javadoc": "A resource that stores spatial indexing data for an ECS domain.\r\n\r\n\u003cp\u003eThe SpatialResource holds a {@link SpatialStructure} that is periodically\r\nupdated by a {@link SpatialSystem} to allow systems to perform fast\r\npoint, radius, or volume searches for entities.\r\n"
+    },
+    {
+      "hash": "82b62106b8eee8f76da5d40fef2d6fef50af49b195dca0ec23f13327b5cd5698",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.spatial.SpatialStructure:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Interface for spatial acceleration structures used to index entities.\r\n\r\n\u003cp\u003eImplementations (such as {@link KDTree}) provide methods for querying\r\nentities based on their 3D coordinates, including sphere, box, and cylinder\r\ncollection.\r\n"
+    },
+    {
+      "hash": "c2dab008b31a2b9754d33a92ce5053a900323437e56bbc426600863cb7b20bfe",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.spatial.SpatialSystem:EXTENDS:TickingSystem:IMPLEMENTS:QuerySystem",
+      "javadoc": "An ECS system that maintains a spatial acceleration structure for entities.\r\n\r\n\u003cp\u003eThis system iterates over all entities in the store, extracts their positions\r\nvia {@link #getPosition}, and rebuilds a {@link SpatialStructure} (like a KD-Tree)\r\nto enable efficient proximity queries (e.g., finding nearby entities).\r\n"
+    },
+    {
+      "hash": "1523817ab335acef4184a39506496fc337aa4549a0a1d5e20f0a3b8dc2a9905b",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.Store:EXTENDS::IMPLEMENTS:ComponentAccessor",
+      "javadoc": "The primary container for an ECS domain, managing entities, components, and systems.\r\n\r\n\u003cp\u003eA Store maintains the lifecycle of entities within a specific domain (such as\r\n{@code EntityStore} or {@code ChunkStore}). It uses an archetype-based storage\r\nmodel where entities with the same set of components are grouped into {@link ArchetypeChunk}s.\r\nThis layout optimizes memory locality and cache efficiency during system iteration.\r\n\r\n\u003cp\u003eKey responsibilities include:\r\n\u003cul\u003e\r\n  \u003cli\u003eEntity creation and removal via {@link Holder} containers\u003c/li\u003e\r\n  \u003cli\u003eSystem registration and execution order management\u003c/li\u003e\r\n  \u003cli\u003eResource storage and persistence\u003c/li\u003e\r\n  \u003cli\u003eParallelized ticking of matching entities via {@code Query}\u003c/li\u003e\r\n\u003c/ul\u003e\r\n\r\n\u003cp\u003eStores are strictly thread-bound; all modifications must occur on the thread\r\nthat owns the Store. For cross-thread synchronization, use the {@link CommandBuffer}.\r\n"
+    },
+    {
+      "hash": "8fa22841801d4c62f10418b8e1353e36783bf1e49f840336edaf6b90d67521a7",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.ArchetypeChunkSystem:EXTENDS:System:IMPLEMENTS:QuerySystem",
+      "javadoc": "Base class for systems that react to the creation or destruction of ArchetypeChunks.\r\n\r\n\u003cp\u003eEach time a new combination of components is created, the Store creates a\r\ncorresponding {@link ArchetypeChunk}. This system type allows for performing\r\ninitialization logic specific to those storage blocks.\r\n"
+    },
+    {
+      "hash": "ef1fdd3ffe194a9752e8eee3e1604062413961ba37460ed7604f83a3b3aa0a66",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.CancellableEcsEvent:EXTENDS:EcsEvent:IMPLEMENTS:ICancellableEcsEvent",
+      "javadoc": "Abstract base class for {@link EcsEvent}s that can be cancelled.\r\n\r\n\u003cp\u003eProvides standard cancellation state management. Event listeners can check\r\n{@link #isCancelled()} to short-circuit processing.\r\n"
+    },
+    {
+      "hash": "6f233c38bf36e7a18651c47d3b2ec04e0822c822f7503b826f48755001d4070f",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.data.ArchetypeDataSystem:EXTENDS:System:IMPLEMENTS:QuerySystem",
+      "javadoc": "Base class for systems that extract or aggregate data from entities into a result set.\r\n\r\n\u003cp\u003eData systems operate on {@link ArchetypeChunk}s and populate a result list\r\nbased on a query parameter. Unlike ticking systems which modify entity state,\r\ndata systems are designed for read-heavy operations like gathering statistics\r\nor building views of entity data.\r\n\r\n@param \u003cECS_TYPE\u003e the ECS domain\r\n@param \u003cQ\u003e the query parameter type\r\n@param \u003cR\u003e the result type\r\n"
+    },
+    {
+      "hash": "5834cbe63b72653b18f2e78e2997f2fe1f52ba1bda43ed2cf2e0606cbd56a36b",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.data.EntityDataSystem:EXTENDS:ArchetypeDataSystem:IMPLEMENTS:",
+      "javadoc": "A specialized {@link ArchetypeDataSystem} that processes individual entities.\r\n\r\n\u003cp\u003eThis system iterates over each entity in a chunk and invokes the abstract\r\n{@link #fetch(int, ArchetypeChunk, Store, CommandBuffer, Object, List)} method\r\nfor data extraction. Results are accumulated into a shared list.\r\n\r\n\u003cp\u003eSupports parallel execution via {@link #isParallel()}. When enabled, entities\r\nare processed across worker threads using {@link SystemTaskData}, with results\r\nmerged at the end.\r\n\r\n@param \u003cECS_TYPE\u003e the ECS domain\r\n@param \u003cQ\u003e the query parameter type\r\n@param \u003cR\u003e the result type\r\n"
+    },
+    {
+      "hash": "3ebd48248d86d77c4943eac2d33fc7951bd55363375904c6b05f1c9c37697db0",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.EcsEvent:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Base class for all events dispatched within the ECS framework.\r\n"
+    },
+    {
+      "hash": "3667cc08f01a5ddf800c2df78a1b5ec91a636503f7df26df73543d384efc40be",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.EntityEventSystem:EXTENDS:EventSystem:IMPLEMENTS:QuerySystem",
+      "javadoc": "Abstract base class for reactive systems that handle entity-specific events.\r\n\r\n\u003cp\u003eWhen an event of type {@code EventType} is dispatched, this system filters\r\nfor entities that match its query. If the entity targeted by the event matches\r\nthe system\u0027s query, the {@link #handle} method is invoked.\r\n\r\n\u003cp\u003eThis mechanism isolates event handling logic to entities with specific components,\r\nsuch as processing damage only for entities with a \"Health\" component.\r\n\r\n@see EventSystem\r\n@see EcsEvent\r\n@see com.hypixel.hytale.component.query.QuerySystem\r\n"
+    },
+    {
+      "hash": "fb0630c0e0f5c74f537ae98d26894052ca9220d33fd199bbcf0e83f015578cf8",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.EventSystem:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Base class for listeners that process {@link EcsEvent}s within an ECS domain.\r\n"
+    },
+    {
+      "hash": "b94305f351b0b7a4ec5c3f8d966b244c705dd8927276b0f47fe850d88d6f18a9",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.HolderSystem:EXTENDS:System:IMPLEMENTS:QuerySystem",
+      "javadoc": "Reactive system that processes entity data at the boundaries of Store addition/removal.\r\n\r\n\u003cp\u003eUnlike {@link RefSystem} which operates on entities already in the store, HolderSystem\r\nreceives callbacks with {@link Holder} containers before the entity is assigned an index\r\n(on add) and after it has been removed (on remove).\r\n\r\n\u003cp\u003eUse this for validation, resource acquisition, or modifying the holder\u0027s component\r\nset before entity creation.\r\n"
+    },
+    {
+      "hash": "fd3494db4675a64cd67eb2db39b510848189af3e6ddb09dc9b63e0bdaa8e998f",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.ICancellableEcsEvent:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Contract for events that support cancellation.\r\n\r\n\u003cp\u003eEvent handlers can check {@link #isCancelled()} to determine if the event\r\nhas been aborted by a previous listener and skip further processing.\r\n"
+    },
+    {
+      "hash": "da1506c65c8f56e548651cd1acf546cfb673a9a8cf8773df24f5bdd24cfd4059",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.ISystem:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Base interface for all systems within the ECS.\r\n\r\n\u003cp\u003eSystems contain the logic that operates on components. An ISystem is\r\nregistered with a {@link ComponentRegistry} and can belong to a\r\n{@link SystemGroup} to control its execution order relative to other systems.\r\n\r\n\u003cp\u003eExecution order is determined by a {@link DependencyGraph} based on\r\nexplicit dependencies and group assignments.\r\n"
+    },
+    {
+      "hash": "a287072a9eca42eb60f7a3c4cd857c042f5bb22e1a311422df98dadea4951e50",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.MetricSystem:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Interface for systems that export runtime metrics for monitoring and debugging.\r\n\r\n\u003cp\u003eSystems implementing this can provide custom performance data or statistics\r\nthat are collected and exposed via the metrics registry. This is used for\r\nprofiling, observability, and diagnostics.\r\n"
+    },
+    {
+      "hash": "0258904160979dd6c76a64575d1e1ba6384a8bfe887829e758a8740cf1f0d617",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.QuerySystem:EXTENDS:ISystem:IMPLEMENTS:",
+      "javadoc": "Interface for ECS systems that operate on a filtered subset of entities.\r\n\r\n\u003cp\u003eSystems implementing this interface define a {@link Query} that determines\r\nwhich entities (via their archetypes) the system is interested in.\r\n"
+    },
+    {
+      "hash": "2d8fae946f67e6cf12094d5afcedefa6f9dd7b7c2511ceb4800f88df6129a6a3",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.RefChangeSystem:EXTENDS:System:IMPLEMENTS:QuerySystem",
+      "javadoc": "Base class for reactive systems that respond to specific component modifications.\r\n\r\n\u003cp\u003eUnlike {@link RefSystem}, which reacts to entity lifecycle events, this class\r\ntriggers when a specific type of component is added to, removed from, or\r\nupdated on an entity. This is useful for synchronizing external state with\r\nspecific component data.\r\n"
+    },
+    {
+      "hash": "9a90b988e123e70c2d8122a66796112e28efc56aa38d1f5a1c72216814a8e098",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.RefSystem:EXTENDS:System:IMPLEMENTS:QuerySystem",
+      "javadoc": "Base class for reactive ECS systems that respond to entity lifecycle events.\r\n\r\n\u003cp\u003eSubclasses define a query and receive callbacks when matching entities are\r\nadded to or removed from the store. Use this for index maintenance, resource\r\nallocation, or any logic triggered by component presence changes.\r\n"
+    },
+    {
+      "hash": "9917d0df03aca194e053274d6552347a4737c8acda6ae7f2e58539737736351a",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.StoreSystem:EXTENDS:System:IMPLEMENTS:",
+      "javadoc": "Base class for systems that respond to their own addition or removal from a Store.\r\n\r\n\u003cp\u003eUse this for systems that need to initialize store-specific state, resources,\r\nor lookup indices when they are attached to an ECS domain instance.\r\n"
+    },
+    {
+      "hash": "2c09225f42b091e41b538a11c7a4fd9ade0685e966908cc464edea2409f6f94b",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.System:EXTENDS::IMPLEMENTS:ISystem",
+      "javadoc": "Abstract base class for systems that register components and resources.\r\n\r\n\u003cp\u003eA System provides helper methods for registering new {@link ComponentType}s\r\nand {@link ResourceType}s. These registrations are collected and processed\r\nby the {@link ComponentRegistry} when the system is added.\r\n"
+    },
+    {
+      "hash": "fc76532e01ce604bc42e48f57149f51cc44eb5e7f3e80e6b81d885f84b7d7d99",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.tick.ArchetypeTickingSystem:EXTENDS:TickingSystem:IMPLEMENTS:QuerySystem",
+      "javadoc": "A specialized {@link TickingSystem} that iterates over entities in batches using {@link ArchetypeChunk}s.\r\n\r\n\u003cp\u003eThis system optimizes iteration by processing entities chunk-by-chunk. It implements\r\n{@link QuerySystem} to define which entities it matches.\r\n\r\n\u003cp\u003eBy default, this system automatically excludes entities with \"NonTicking\" components\r\nunless {@link #isExplicitQuery()} returns true.\r\n\r\n@see EntityTickingSystem\r\n"
+    },
+    {
+      "hash": "84686e3a038001410d247d963ffb4dc3a45669b0d288bd427f3eb20b11e44683",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.tick.DelayedEntitySystem:EXTENDS:EntityTickingSystem:IMPLEMENTS:",
+      "javadoc": "A variation of {@link EntityTickingSystem} that runs at a fixed interval rather than every frame.\r\n\r\n\u003cp\u003eThis is useful for expensive or non-critical logic that doesn\u0027t need 60Hz updates,\r\nsuch as AI decision making, pathfinding recalculations, or periodic status regeneration.\r\n\r\n\u003cp\u003eThe system maintains an internal timer (stored as a {@link Resource}) to track accumulated time\r\nbetween executions.\r\n"
+    },
+    {
+      "hash": "c6cd6b10cc8960519b470d6ad91cf1c3a38f6bb16a42768241f529b77b46af7d",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.tick.EntityTickingSystem:EXTENDS:ArchetypeTickingSystem:IMPLEMENTS:",
+      "javadoc": "The standard base class for systems that process individual entities every frame.\r\n\r\n\u003cp\u003eSubclasses implement {@link #tick(float, int, ArchetypeChunk, Store, CommandBuffer)} to define logic\r\nfor a single entity. The system handles the iteration over all matching chunks and entities.\r\n\r\n\u003ch3\u003eParallelism\u003c/h3\u003e\r\n\u003cp\u003eThis system supports parallel execution via the job system. Override {@link #isParallel}\r\n(or {@link #useParallel}) to enable this. When running in parallel, the system uses\r\n{@link SystemTaskData} to distribute work across worker threads.\r\n\r\n\u003cp\u003e\u003cb\u003eNote:\u003c/b\u003e Thread safety is critical when parallelism is enabled. Use the provided\r\n{@link CommandBuffer} for all structural modifications (adding/removing entities/components).\r\n\r\n@see ArchetypeTickingSystem\r\n"
+    },
+    {
+      "hash": "b4f4b0083e966007bacb4c6cc6b63b6724475ce5481d13669fc7050de3e84068",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.tick.SystemTaskData:EXTENDS::IMPLEMENTS:IntConsumer",
+      "javadoc": "Data container for parallel tick tasks.\r\n\r\n\u003cp\u003eThis class holds the context required to tick a single entity (or range of entities)\r\non a worker thread. It is pooled and reused by the {@link ParallelTask} system to minimize\r\nallocation overhead.\r\n"
+    },
+    {
+      "hash": "02ad67baa56085bee25afd88c6bf73460079ae64d7c5c9e5517596478f832990",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.tick.RunWhenPausedSystem:EXTENDS:TickableSystem:IMPLEMENTS:",
+      "javadoc": "Marker interface for systems that should continue executing even when the game loop is paused.\r\n\r\n\u003cp\u003eNormally, a {@link Store} may skip ticking most systems if the game state is paused.\r\nSystems implementing this interface bypass that check. Examples include UI input handling,\r\nnetwork keep-alives, or menu animations.\r\n"
+    },
+    {
+      "hash": "0842225b7dce0a55340afcf1f94646777a7cf8ca06f48f42b75f3d3a1b6375f9",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.tick.TickableSystem:EXTENDS:ISystem:IMPLEMENTS:",
+      "javadoc": "Interface for systems that require per-tick updates.\r\n\r\n\u003cp\u003eSystems implementing this interface will have their {@link #tick} method called\r\nonce per game loop iteration. This is the entry point for continuous game logic,\r\nphysics, and other time-dependent updates.\r\n\r\n@see TickingSystem\r\n@see com.hypixel.hytale.component.system.System\r\n"
+    },
+    {
+      "hash": "460d4d3d20f80a104ced645ae8407130eb3f59d1283054b9a9a391c92e004b72",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.tick.TickingSystem:EXTENDS:System:IMPLEMENTS:TickableSystem",
+      "javadoc": "Base abstract implementation for systems that run every tick.\r\n\r\n\u003cp\u003eExtends the registration capabilities of {@link System} with the {@link TickableSystem} interface.\r\nMost game logic systems should extend {@link EntityTickingSystem} instead of this class directly,\r\nunless they do not operate on specific entities (e.g., a global time manager).\r\n\r\n@see EntityTickingSystem\r\n"
+    },
+    {
+      "hash": "845544bdee429b808ac8406e66826096a53731cf71c59f77a86dc4a3e9c2b6e7",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.system.WorldEventSystem:EXTENDS:EventSystem:IMPLEMENTS:ISystem",
+      "javadoc": "Abstract base class for reactive systems that handle global ECS events.\r\n\r\n\u003cp\u003eUnlike {@link EntityEventSystem}, which targets specific entities, this system\r\nresponds to events that affect the entire world or don\u0027t have a single entity target.\r\nExamples include game state changes, weather updates, or global signals.\r\n\r\n@see EntityEventSystem\r\n@see EventSystem\r\n@see EcsEvent\r\n"
+    },
+    {
+      "hash": "3ce969cb706f78e42230d5e81d1aff33525f35719256b98a73591454e2b011db",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.SystemGroup:EXTENDS::IMPLEMENTS:Comparable",
+      "javadoc": "Groups related systems for ordered execution within an ECS tick phase.\r\n\r\n\u003cp\u003eSystems assigned to the same group run together in dependency order.\r\nGroups themselves are ordered by index within the registry. Used to ensure\r\noperations like network synchronization happen at consistent points in the tick.\r\n"
+    },
+    {
+      "hash": "ce6299bbab82a779561b3dc17bcfb9f79f768e094fccb6b3c16bd681f394a2f8",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.SystemType:EXTENDS::IMPLEMENTS:Comparable",
+      "javadoc": "Metadata and identifier for a specific type or class of ECS system.\r\n\r\n\u003cp\u003eSystemTypes are used to categorize systems within a {@link ComponentRegistry}.\r\nThey allow for retrieving systems by their base class or interface, and are\r\nused to identify built-in system categories like {@code TickingSystem} or\r\n{@code RefSystem}.\r\n"
+    },
+    {
+      "hash": "748923a4c6273346e47d7025a0e54edbce2bec0e9cde35b24a15bfef4f737477",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.task.ParallelRangeTask:EXTENDS:CountedCompleter:IMPLEMENTS:",
+      "javadoc": "A sub-task of {@link ParallelTask} that processes a specific range of indices.\r\n\r\n\u003cp\u003eThis task further divides its range into smaller {@link SubTask}s based on the\r\navailable parallelism of the system.\r\n"
+    },
+    {
+      "hash": "3d02c1856d6c76dea7eaa30c8c86c08952cc3a76bbe72f8846fec9f4e60d6823",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.component.task.ParallelTask:EXTENDS:CountedCompleter:IMPLEMENTS:",
+      "javadoc": "A task that can be executed in parallel using the ForkJoin framework.\r\n\r\n\u003cp\u003eThis task splits a larger workload into multiple {@link ParallelRangeTask}s\r\nthat can be processed concurrently on different threads.\r\n"
+    },
+    {
+      "hash": "c90edeaf6dc3cb09baf3edff3cb49869d482be034f3bd337f499317542903cd4",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.event.EventBus:EXTENDS::IMPLEMENTS:IEventBus",
+      "javadoc": "Primary implementation of the Hytale event bus system.\r\n\r\n\u003cp\u003eThe EventBus manages the registration and dispatching of both synchronous\r\nand asynchronous events. It uses {@link EventBusRegistry} instances to categorize\r\nlisteners by event type and optional lookup keys, allowing for highly efficient\r\nevent targeting (e.g., world-specific or entity-specific events).\r\n"
+    },
+    {
+      "hash": "3ffd0d8f9995d22b75eb240f81255090599a06d0b2006a7022a9809d13899583",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.event.IEventBus:EXTENDS:IEventRegistry:IMPLEMENTS:",
+      "javadoc": "Interface for the central event distribution system.\r\n\r\n\u003cp\u003eProvides methods for dispatching synchronous and asynchronous events,\r\nwith support for targeted dispatching based on event keys.\r\n"
+    },
+    {
+      "hash": "d2a8398cf730ad41e61fa321e6521f67947c7a547cdc26c3aef694aba7aa8ef5",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.protocol.Packet:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Base interface for all network packets in the Hytale protocol.\r\n\r\n\u003cp\u003eEach packet defines its unique ID, serialization logic to a {@link ByteBuf},\r\nand its expected size in bytes. Packets are registered within the\r\n{@link PacketRegistry} to be correctly encoded and decoded by the networking layer.\r\n"
+    },
+    {
+      "hash": "919b9e76961b0b435c81f4343162f8386d32755067c9bae94a6374acf39a00c4",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.protocol.PacketRegistry:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Central registry for all network packets in the Hytale protocol.\r\n\r\n\u003cp\u003eThis registry maps packet IDs to their respective classes and provides the\r\nnecessary logic for packet serialization, deserialization, and structural validation.\r\nIt contains a massive static mapping of the Hytale protocol, including authentication,\r\nworld synchronization, asset transfer, entity updates, and UI interactions.\r\n"
+    },
+    {
+      "hash": "01788d0f60737b190e8115202eb0f30b190cb2763f8b46235ee7cbd2fcb8e425",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.entity.Entity:EXTENDS::IMPLEMENTS:Component",
+      "javadoc": "The base class for all game entities in the Hytale server.\r\n\r\n\u003cp\u003eEntity represents any dynamic object in the world, from players and creatures to projectiles\r\nand dropped items. It integrates with the ECS via the \u003cb\u003eEntity Wrapper Pattern\u003c/b\u003e: the Entity\r\nitself is a {@link Component} that holds a {@link Ref} to the underlying ECS entity.\r\n\r\n\u003ch3\u003eEntity Lifecycle\u003c/h3\u003e\r\n\u003col\u003e\r\n  \u003cli\u003e\u003cb\u003eConstruction\u003c/b\u003e: Create the entity instance via subclass constructor\r\n  \u003cli\u003e\u003cb\u003eLoading\u003c/b\u003e: Call {@link #loadIntoWorld(World)} to assign it to a world\r\n  \u003cli\u003e\u003cb\u003eSpawning\u003c/b\u003e: Add to {@link EntityStore} via {@link EntityStore#addEntity}\r\n  \u003cli\u003e\u003cb\u003eActive\u003c/b\u003e: Entity processes via ECS systems each tick\r\n  \u003cli\u003e\u003cb\u003eRemoval\u003c/b\u003e: Call {@link #remove()} to despawn from the world\r\n\u003c/ol\u003e\r\n\r\n\u003ch3\u003eKey Concepts for Modders\u003c/h3\u003e\r\n\u003cul\u003e\r\n  \u003cli\u003e\u003cb\u003eECS Integration\u003c/b\u003e: Always access/modify entity state through the {@link Ref} and\r\n      {@link ComponentAccessor}, never via direct field mutation during ticks\r\n  \u003cli\u003e\u003cb\u003eThread Safety\u003c/b\u003e: Entity operations must occur on the world\u0027s ticking thread\r\n  \u003cli\u003e\u003cb\u003eNetwork ID\u003c/b\u003e: Each entity gets a unique network identifier for client synchronization\r\n  \u003cli\u003e\u003cb\u003eTransform\u003c/b\u003e: Position and rotation are stored in {@link TransformComponent}\r\n\u003c/ul\u003e\r\n\r\n@see LivingEntity\r\n@see com.hypixel.hytale.server.core.entity.entities.Player\r\n@see com.hypixel.hytale.server.core.modules.entity.EntityModule\r\n"
+    },
+    {
+      "hash": "ec4ea5958d4d8e8d84c1cbce742fbbc479ab5717a8c9e08c9b6f60f4d46c04d5",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.entity.LivingEntity:EXTENDS:Entity:IMPLEMENTS:",
+      "javadoc": "The base class for all living entities, adding health, inventory, and advanced movement.\r\n\r\n\u003cp\u003eLivingEntity extends {@link Entity} with features common to creatures, players, and NPCs:\r\n\u003cul\u003e\r\n  \u003cli\u003e\u003cb\u003eInventory System\u003c/b\u003e: Access via {@link #getInventory()}, includes armor and equipment\r\n  \u003cli\u003e\u003cb\u003eStat Modifiers\u003c/b\u003e: Managed by {@link StatModifiersManager} for buffs/debuffs\r\n  \u003cli\u003e\u003cb\u003eFall Damage\u003c/b\u003e: Tracks {@link #currentFallDistance} for physics calculations\r\n  \u003cli\u003e\u003cb\u003eEquipment\u003c/b\u003e: Network synchronization for visual changes\r\n  \u003cli\u003e\u003cb\u003eBreathing\u003c/b\u003e: Fluid detection via {@link #canBreathe}\r\n\u003c/ul\u003e\r\n\r\n\u003ch3\u003eFor Plugin Developers\u003c/h3\u003e\r\n\u003cp\u003eWhen creating custom creature types, extend this class and override:\r\n\u003cul\u003e\r\n  \u003cli\u003e{@link #createDefaultInventory()} - Define starting equipment\r\n  \u003cli\u003e{@link #canDecreaseItemStackDurability} - Control item wear\r\n\u003c/ul\u003e\r\n\r\n@see com.hypixel.hytale.server.core.entity.entities.Player\r\n@see com.hypixel.hytale.server.core.inventory.Inventory\r\n@see StatModifiersManager\r\n"
+    },
+    {
+      "hash": "5668a98f43286b9fadbfaad83c35ba8922ede94194343cb30bc3ca7565309258",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.HytaleServer:EXTENDS::IMPLEMENTS:",
+      "javadoc": "The main entry point and singleton controller for the Hytale server.\r\n\r\n\u003cp\u003eThe HytaleServer class orchestrates the entire server lifecycle, including\r\nconfiguration loading, plugin management, universe/world initialization, and\r\nthe networking layer. It provides access to central managers like {@link PluginManager},\r\n{@link EventBus}, and {@link CommandManager}.\r\n\r\n\u003cp\u003eIn singleplayer mode, it also communicates startup progress back to the\r\nclient through specialized log signals.\r\n"
+    },
+    {
+      "hash": "7b90100c6189e92ac78dbc1c58315be5933c9a31b8fa4da9932860b8768ebc2c",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.plugin.event.PluginEvent:EXTENDS::IMPLEMENTS:IEvent",
+      "javadoc": "Base class for all events related to a {@link PluginBase}.\r\n\r\n\u003cp\u003eThese events are dispatched through the global event bus and allow other \r\nsystems to react to changes in a plugin\u0027s state or lifecycle.\r\n"
+    },
+    {
+      "hash": "564af34d5cc7b123e3f2c23095e7b3684f2805f85d5a05ba692139a3b8040846",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.plugin.event.PluginSetupEvent:EXTENDS:PluginEvent:IMPLEMENTS:",
+      "javadoc": "Event dispatched when a {@link PluginBase} has finished its {@code setup()} phase.\r\n\r\n\u003cp\u003eThis event signals that the plugin has completed its static registrations \r\n(ECS, commands, events) and is ready for the start phase.\r\n"
+    },
+    {
+      "hash": "ed7608d3a58897648a43e3fa7a86c00a18a5c20df49c4ee06e7218a6815bfbae",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.plugin.JavaPlugin:EXTENDS:PluginBase:IMPLEMENTS:",
+      "javadoc": "The primary entry point for all Java-based Hytale plugins.\r\n\r\n\u003cp\u003eJavaPlugin extends the core {@link PluginBase} with features specific to third-party\r\nextensions. It manages the plugin\u0027s isolated {@link PluginClassLoader}, which provides \r\nclass isolation while allowing access to the Hytale Server API. \r\n\r\n\u003cp\u003eAdditionally, JavaPlugin handles the automatic registration of embedded asset packs \r\nif declared in the plugin\u0027s manifest. Subclasses should implement logic by overriding:\r\n\u003cul\u003e\r\n    \u003cli\u003e{@link #setup()}: For static registrations (ECS components, systems, event listeners).\u003c/li\u003e\r\n    \u003cli\u003e{@link #start()}: For logic that requires all plugins to have completed their setup phase.\u003c/li\u003e\r\n    \u003cli\u003e{@link #shutdown()}: For gracefully releasing resources and stopping background tasks.\u003c/li\u003e\r\n\u003c/ul\u003e\r\n"
+    },
+    {
+      "hash": "c4a7541e180d8d2838fd2f6c0803449a6cfe6ec8a972c0d8e17775bb17d2771b",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.JavaPlugin:Path getFile()",
+      "javadoc": "Returns the path to the physical JAR file for this plugin.\r\n"
+    },
+    {
+      "hash": "5ee55660f4b3c9f0ef36f2999ce9e44cd8440d3da82a172246c1c2efc3871f78",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.JavaPlugin:PluginClassLoader getClassLoader()",
+      "javadoc": "Returns the isolated class loader for this plugin.\r\n"
+    },
+    {
+      "hash": "8eff128db76a28a8092a5f40c04146434ce804b7518ce177786e35718a5cb4cc",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.plugin.JavaPluginInit:EXTENDS:PluginInit:IMPLEMENTS:",
+      "javadoc": "Initialization context specifically for {@link JavaPlugin} instances.\r\n\r\n\u003cp\u003eExtends {@link PluginInit} with Java-specific data such as the plugin\u0027s\r\nJAR file path and the specialized {@link PluginClassLoader}.\r\n"
+    },
+    {
+      "hash": "37fc5c8ea468fabe7cfd4791006f6afaa6016fcc451f3c8c862bf8b0b7254831",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.JavaPluginInit:Path getFile()",
+      "javadoc": "Returns the path to the plugin\u0027s JAR file.\r\n"
+    },
+    {
+      "hash": "e0c62c07dd4cae1ee57df1e854190133ce17e33c40cb61a48dd249b3ea7ebd7d",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.JavaPluginInit:PluginClassLoader getClassLoader()",
+      "javadoc": "Returns the class loader used for this Java plugin.\r\n"
+    },
+    {
+      "hash": "4f0987a7ddc86044163c187a9e276f3ec874451c02d83a0a79598ededc21cd17",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.plugin.MissingPluginDependencyException:EXTENDS:RuntimeException:IMPLEMENTS:",
+      "javadoc": "Thrown when a plugin cannot be loaded due to a missing or incompatible dependency.\r\n\r\n\u003cp\u003eThis includes cases where:\r\n\u003cul\u003e\r\n  \u003cli\u003eA required dependency is not present\r\n  \u003cli\u003eThe dependency\u0027s version doesn\u0027t satisfy the required {@link com.hypixel.hytale.common.semver.SemverRange}\r\n  \u003cli\u003eThe server version is incompatible with the plugin\r\n\u003c/ul\u003e\r\n"
+    },
+    {
+      "hash": "d4b485f7dae417048369c19f45c139ddc7908718ae0e1d8d1b3a11b722fa6376",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.plugin.PluginBase:EXTENDS::IMPLEMENTS:CommandOwner",
+      "javadoc": "The fundamental base class for all server modules and plugins in the Hytale ecosystem.\r\n\r\n\u003cp\u003ePluginBase provides the core infrastructure and registry access required for any\r\narchitectural component. It acts as a central hub for:\r\n\u003cul\u003e\r\n    \u003cli\u003e\u003cb\u003eRegistry Management:\u003c/b\u003e Access to ECS domains (EntityStore, ChunkStore), \r\n        event registries, command registries, and asset registries.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eLifecycle Handling:\u003c/b\u003e Orchestrates the transition through lifecycle states \r\n        (SETUP -\u003e START -\u003e ENABLED) and provides hooks for initialization and shutdown.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eConfiguration:\u003c/b\u003e Manages persistent configuration files associated with the module.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eMetrics and Logging:\u003c/b\u003e Provides a standardized logging context and metrics \r\n        reporting via the {@link MetricsRegistry}.\u003c/li\u003e\r\n\u003c/ul\u003e\r\n\r\n\u003cp\u003eFrom an architectural perspective, every significant logic container in the server \r\n(whether a built-in \"Module\" or a third-party \"Plugin\") extends this class to \r\nparticipate in the server\u0027s lifecycle and gain access to its core systems.\r\n"
+    },
+    {
+      "hash": "1ba182431c3e1b58712312c311341f9333f5e1b4531d4650e582aecf2c647f9c",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:Config\u003cT\u003e withConfig(BuilderCodec\u003cT\u003e)",
+      "javadoc": "Declares a configuration file associated with this plugin.\r\n\r\n\u003cp\u003eMust be called before the {@link #setup()} phase. The configuration will be\r\nautomatically loaded during {@link #preLoad()}.\r\n\r\n@param configCodec The codec used to build and validate the configuration object.\r\n@return A {@link Config} wrapper for the configuration data.\r\n"
+    },
+    {
+      "hash": "e7f509c569bcda5bc0b8fb7c490e8f183acd3b1458dff0bd0d271b34b4311c44",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:Config\u003cT\u003e withConfig(String,BuilderCodec\u003cT\u003e)",
+      "javadoc": "Declares a named configuration file associated with this plugin.\r\n\r\n@param name The name of the configuration file (without extension).\r\n@param configCodec The codec used to build and validate the configuration object.\r\n@return A {@link Config} wrapper for the configuration data.\r\n"
+    },
+    {
+      "hash": "2e165e73e2486c6539ecb97c6d68c6f0fc0379209cc5a942dcd85accab0f2ac2",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:CompletableFuture\u003cVoid\u003e preLoad()",
+      "javadoc": "Asynchronously loads all declared configurations.\r\n\r\n@return A future that completes when all configs are loaded.\r\n"
+    },
+    {
+      "hash": "1dbbc9321f9dc423a2602b5dde4d8775f45526583a7ce6666ed15dce0efe62fb",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:ClientFeatureRegistry getClientFeatureRegistry()",
+      "javadoc": "Returns the client feature registry.\r\n\r\n\u003cp\u003eAllows plugins to enable or disable specific client-side features\r\n(like UI elements, debug rendering, or input handling) for players.\r\n"
+    },
+    {
+      "hash": "52a6dbc05b1b546516bc96cab3fa0c8f05e584cdcff3feccdd8d0b5d7ceea46d",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:CommandRegistry getCommandRegistry()",
+      "javadoc": "Returns the command registry for this plugin.\r\n\r\n\u003cp\u003eUsed to register custom chat commands and their handlers.\r\n"
+    },
+    {
+      "hash": "d0ab09e5b488ddb09e5158a889bca77c5e3f49176f609dad94588196c9ca8012",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:EventRegistry getEventRegistry()",
+      "javadoc": "Returns the event registry for this plugin.\r\n\r\n\u003cp\u003eUsed to register listeners for server events (e.g., player join, block break).\r\n"
+    },
+    {
+      "hash": "cece6c0b711455b87fc362f6df61a55261a9fa20a80b28fef01ccdabc55b4ea4",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:BlockStateRegistry getBlockStateRegistry()",
+      "javadoc": "Returns the block state registry.\r\n\r\n\u003cp\u003eProvides access to block state definitions and metadata, useful for\r\nquerying block properties or modifying block behavior.\r\n"
+    },
+    {
+      "hash": "7578fb5b20c8f010df02d411fcada1569a73bc22fe3835e19375d35d40f485ef",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:EntityRegistry getEntityRegistry()",
+      "javadoc": "Returns the entity registry.\r\n\r\n\u003cp\u003eUsed for looking up entity types and their associated metadata.\r\n"
+    },
+    {
+      "hash": "402ccb17bd91074d83d9d75d4bb50ae6ec2ed3b5fc824b83220c5214be023fbd",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:ComponentRegistryProxy\u003cEntityStore\u003e getEntityStoreRegistry()",
+      "javadoc": "Returns the registry proxy for the {@link EntityStore}.\r\n\r\n\u003cp\u003eUsed to register custom component types and systems for dynamic entities.\r\n"
+    },
+    {
+      "hash": "a83e872934b965b5708d094da339a1255d171250f2934bfbd3887a3f96148fe7",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:ComponentRegistryProxy\u003cChunkStore\u003e getChunkStoreRegistry()",
+      "javadoc": "Returns the registry proxy for the {@link ChunkStore}.\r\n\r\n\u003cp\u003eUsed to register custom component types for chunks, commonly used for\r\nattaching data to blocks (the Block Component Pattern).\r\n"
+    },
+    {
+      "hash": "82c66d13414b59bda385062ed3bfa56471a409f56ec25865453587eae802661f",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:AssetRegistry getAssetRegistry()",
+      "javadoc": "Returns the asset registry for this plugin.\r\n\r\n\u003cp\u003eUsed to register custom assets (models, textures, sounds) programmatically.\r\nAssets registered here are properly tracked and unloaded on plugin shutdown.\r\n"
+    },
+    {
+      "hash": "6c911d1a30bddb2a62f45c8fcb65bfe650638e164e00d45083f016141bea9fb4",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:CodecMapRegistry\u003cT,C\u003e getCodecRegistry(StringCodecMapCodec\u003cT,C\u003e)",
+      "javadoc": "Returns a registry for codec-based data maps.\r\n\r\n\u003cp\u003eThis allows plugins to register custom data structures that can be serialized/deserialized\r\nusing the provided codec.\r\n\r\n@param mapCodec The codec defining the data structure.\r\n"
+    },
+    {
+      "hash": "a43f1419ae8a8464dfb0c62b4b0de078927e0f436dd4b863a04d766c68cec6c2",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:CodecMapRegistry.Assets\u003cT,?\u003e getCodecRegistry(AssetCodecMapCodec\u003cK,T\u003e)",
+      "javadoc": "Returns a registry for asset-based data maps.\r\n\r\n\u003cp\u003eSpecialized registry for data that is tied to specific assets (like block or item definitions).\r\n\r\n@param mapCodec The asset codec defining the structure.\r\n"
+    },
+    {
+      "hash": "613bb346b485cf28bf5f1f47201fe969ff734a01f27f9818afbcee5aeb310290",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:MapKeyMapRegistry\u003cV\u003e getCodecRegistry(MapKeyMapCodec\u003cV\u003e)",
+      "javadoc": "Returns a registry for map-key based data.\r\n\r\n@param mapCodec The map key codec.\r\n"
+    },
+    {
+      "hash": "59ce58b369eff3f485439bb97d07156d97d38069c7731c4ecbc08d726a17567b",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:String getBasePermission()",
+      "javadoc": "Returns the base permission node for this plugin.\r\n\r\n\u003cp\u003eTypically formatted as {@code group.pluginName}.\r\n"
+    },
+    {
+      "hash": "3a1cc12d8201f37198f51f2ed0e7aad2eb28ba1470e3dc95abfd885a098f2727",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:boolean isDisabled()",
+      "javadoc": "Checks if the plugin is currently disabled.\r\n\r\n@return true if the plugin state is NONE, DISABLED, or SHUTDOWN.\r\n"
+    },
+    {
+      "hash": "0879452aea87a189179ee523a988a0880418366f5411dfa4c0695471571108c8",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:boolean isEnabled()",
+      "javadoc": "Checks if the plugin is currently enabled and operational.\r\n"
+    },
+    {
+      "hash": "bcd20c3cd3652d07a7222445f28681a5b1f2c38ab02f5213f269f22c71bdd9df",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:void setup()",
+      "javadoc": "Lifecycle hook called during the setup phase.\r\n\r\n\u003cp\u003ePlugins should use this method to register their components, systems,\r\nevents, and other static registry entries. Complex logic should be avoided here.\r\n"
+    },
+    {
+      "hash": "b9cf34b2d6b34f01fab8d150d1b734378db9aff43a044b5d55f69e0fa596feb1",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:void start()",
+      "javadoc": "Lifecycle hook called when the plugin is being enabled.\r\n\r\n\u003cp\u003eThis is called after all plugins have finished their setup phase.\r\nUse this for logic that requires all registries to be populated.\r\n"
+    },
+    {
+      "hash": "c93f0956296f13f8f6348b4bb5fdbf91ed0baa926e9d77fbc7e015f6ce5a6f59",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:void shutdown()",
+      "javadoc": "Lifecycle hook called when the plugin is being disabled or the server is shutting down.\r\n\r\n\u003cp\u003eManual cleanup of resources (threads, database connections) should be handled here.\r\nNote that most registry entries are automatically cleaned up.\r\n"
+    },
+    {
+      "hash": "a96e0e554ed33aebe9a15b1aad9567a670b588f28a9cf21cc18d3c8925a41087",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:PluginType getType()",
+      "javadoc": "Returns the type of this plugin.\r\n\r\n@return {@link PluginType#PLUGIN} for third-party plugins, or other internal types for server modules.\r\n"
+    },
+    {
+      "hash": "2026568e06723aeefb8a863e4a5717255b0f1044cb2d328fdd74c978c37a4295",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.plugin.PluginClassLoader:EXTENDS:URLClassLoader:IMPLEMENTS:",
+      "javadoc": "Specialized class loader providing isolation between plugins while allowing controlled sharing.\r\n\r\n\u003cp\u003eEach {@link JavaPlugin} receives its own PluginClassLoader, which:\r\n\u003cul\u003e\r\n  \u003cli\u003eLoads classes from the server\u0027s core API first (e.g., ECS, events)\r\n  \u003cli\u003eLoads classes from the plugin\u0027s own JAR\r\n  \u003cli\u003eUses the {@link PluginManager.PluginBridgeClassLoader} to access declared dependencies\r\n\u003c/ul\u003e\r\n\r\n\u003cp\u003eThis loader distinguishes between \"builtin\" plugins (bundled with the server) and\r\n\"third-party\" plugins (external JARs) via the {@code inServerClassPath} flag, which affects\r\nerror reporting and classloader naming.\r\n"
+    },
+    {
+      "hash": "b842d31a59663a46e2d1d1a7d9a7ced9f466177fc25f38069f123a700370986f",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.plugin.PluginInit:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Data holder for plugin initialization parameters.\r\n\r\n\u003cp\u003eContains the plugin\u0027s manifest and its dedicated data directory.\r\n"
+    },
+    {
+      "hash": "e04cff9c5088123e6826377940817d254a932b13074d6237d4c83a30d1d2220e",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginInit:PluginManifest getPluginManifest()",
+      "javadoc": "Returns the manifest containing metadata about the plugin.\r\n"
+    },
+    {
+      "hash": "dd1f12e2a79e6f61efeb0e855e5fe563ae188574efee15f8fe1e67b4cd3c1ad1",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginInit:Path getDataDirectory()",
+      "javadoc": "Returns the path to the directory where the plugin should store its data.\r\n"
+    },
+    {
+      "hash": "2333200d80b40889055b7a35ce124ecb40abb92c0b256000bdb9f0481c91d442",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.plugin.PluginListPageManager:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Manages the registration and notification of {@link PluginListPage}s.\r\n\r\n\u003cp\u003eThis manager provides a registry for UI pages that display lists of plugins\r\nto the client. It handles the synchronization of plugin state changes to\r\nall active pages, ensuring the client-side view remains up-to-date as\r\nplugins are enabled, disabled, or reloaded.\r\n"
+    },
+    {
+      "hash": "72aacf7537d867f80b8f2a6d79bdff8770383016814a3cba474e43d0173e2ec7",
+      "type": "FIELD",
+      "signature": "FIELD:com.hypixel.hytale.server.core.plugin.PluginListPageManager:public,static PluginListPageManager x1",
+      "javadoc": "Singleton instance of the manager.\r\n"
+    },
+    {
+      "hash": "e6ca3927717908c3c51166755c988c455a32f5916ee24898529295264e3130ab",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.plugin.SessionSettings:EXTENDS::IMPLEMENTS:Component",
+      "javadoc": "ECS component that stores session-specific settings for the plugin list UI.\r\n\r\n\u003cp\u003eThis component is attached to player entities in the {@link EntityStore} to\r\ncontrol how plugins are displayed to them in the UI.\r\n"
+    },
+    {
+      "hash": "979a85da9cd4258f46928a4aac7b669e5af2ae1983020efce4b11cfbb0a1e74f",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.plugin.PluginManager:EXTENDS::IMPLEMENTS:",
+      "javadoc": "The central orchestrator for Hytale\u0027s plugin and module ecosystem.\r\n\r\n\u003cp\u003eThe PluginManager is a singleton responsible for the entire lifecycle of both internal \r\nserver modules and third-party plugins. Its primary responsibilities include:\r\n\u003cul\u003e\r\n    \u003cli\u003e\u003cb\u003eDiscovery:\u003c/b\u003e Scanning the classpath and the various plugin directories \r\n        ({@code builtin}, {@code mods}) for plugin manifest files.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eDependency Resolution:\u003c/b\u003e Analyzing plugin dependencies and determining \r\n         a valid load order, handling potential errors like \r\n        {@link MissingPluginDependencyException}.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eLifecycle Management:\u003c/b\u003e Transitioning all registered plugins through their \r\n        lifecycle states (SCAN -\u003e SETUP -\u003e START -\u003e ENABLED) and managing the \r\n        asynchronous cleanup during shutdown.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eClass Isolation:\u003c/b\u003e Managing the {@link PluginClassLoader} hierarchy to \r\n        ensure plugins operate in isolation while maintaining shared access to the \r\n        Server core API and shared libraries.\u003c/li\u003e\r\n\u003c/ul\u003e\r\n\r\n\u003cp\u003eThis manager is a critical component of the server\u0027s boot process, ensuring that all \r\ngame logic systems (implemented as plugins or modules) are correctly initialized \r\nbefore the universe and worlds are loaded.\r\n"
+    },
+    {
+      "hash": "57e3310cc9fa298a1b8d5532336a9b5bf2b2d4b8f754a7b2a7ea7068f9250f7e",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginManager:void setup()",
+      "javadoc": "Scans for plugins and prepares them for initialization.\r\n\r\n\u003cp\u003eThis method discovers plugins in the core classpath, the {@code builtin}\r\ndirectory, and the {@code mods} directory. It resolves the load order based\r\non dependency declarations and prepares the plugins for the setup phase.\r\n"
+    },
+    {
+      "hash": "1aac3b1b6e7a050386d952c62830100e2ed40f65e7537e86a0bec29d34969b5d",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginManager:List\u003cPluginBase\u003e getPlugins()",
+      "javadoc": "Returns an unmodifiable list of all currently loaded plugins.\r\n"
+    },
+    {
+      "hash": "8ddd2f7850adefd3fadd4adcbbf6d3f9ff8f29154a4c78cbbc724d3b04b20b1b",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginManager:PluginBase getPlugin(PluginIdentifier)",
+      "javadoc": "Retrieves a loaded plugin by its unique identifier.\r\n\r\n@param identifier The identifier of the plugin to find.\r\n@return The plugin instance, or null if not found.\r\n"
+    },
+    {
+      "hash": "72280eb872d3dd35641faf81ba90a830db458dc4a883c7d3b83be184f4dffb56",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginManager:boolean reload(PluginIdentifier)",
+      "javadoc": "Reloads a plugin by unloading it and then loading it again.\r\n\r\n@param identifier The identifier of the plugin to reload.\r\n@return true if the reload was successful.\r\n"
+    },
+    {
+      "hash": "f7508f0e66eb122d86576d151c25c162998770176285b93b9c6768e8126515fe",
+      "type": "METHOD",
+      "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginManager:boolean unload(PluginIdentifier)",
+      "javadoc": "Gracefully unloads a plugin, calling its {@link PluginBase#shutdown()} method.\r\n\r\n@param identifier The identifier of the plugin to unload.\r\n@return true if the plugin was successfully unloaded.\r\n"
+    },
+    {
+      "hash": "7f95eb575ef80fce6401b5cd80dfd023b7812e61738c372da40745122f5ba6e4",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.plugin.registry.AssetRegistry:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Handles the registration of custom assets for a specific plugin or module.\r\n\r\n\u003cp\u003eAssetRegistry acts as a proxy to the global asset system, ensuring that any \r\nassets registered by a plugin are tracked and can be properly cleaned up \r\nwhen the plugin is disabled or the server shuts down.\r\n"
+    },
+    {
+      "hash": "a2fc2c16ba4958e08cc55c10b4f10e888b2743a4c19d7df5873e07ae35979776",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.plugin.registry.IRegistry:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Base interface for all architectural registries in the Hytale server.\r\n\r\n\u003cp\u003eRegistries that implement this interface are expected to handle their \r\nown cleanup logic during the {@link #shutdown()} phase.\r\n"
+    },
+    {
+      "hash": "c4efac83c30f3cae9fa03d8be8090b95c6c3db3f24aa379bf2efac3acd0dc661",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk:EXTENDS::IMPLEMENTS:Component",
+      "javadoc": "Component that stores the raw block data and maps for a world chunk.\r\n\r\n\u003cp\u003eBlockChunk is responsible for the performance-critical storage of block IDs,\r\nheightmaps, and tintmaps within a {@link WorldChunk}. It divides the vertical\r\ncolumn into multiple {@link BlockSection}s for efficient network transmission\r\nand memory management.\r\n\r\n\u003cp\u003eIt also manages the chunk\u0027s {@link EnvironmentChunk}, which stores biome-related\r\nor environmental data used for rendering and world logic.\r\n"
+    },
+    {
+      "hash": "9b343e6cba731819e41d40de13b92ec5b2266a10f2864e9b2115238a6bd918de",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk:EXTENDS::IMPLEMENTS:BlockAccessor,Component",
+      "javadoc": "Represents a logical vertical column of world data, acting as a component of {@link ChunkStore}.\r\n\r\n\u003cp\u003eA WorldChunk is a primary container for world-related data within a 32x32 area.\r\nIt coordinates several sub-chunks:\r\n\u003cul\u003e\r\n  \u003cli\u003e{@link BlockChunk} - stores raw block IDs and metadata.\u003c/li\u003e\r\n  \u003cli\u003e{@link BlockComponentChunk} - manages block-specific entities (Tile Entities).\u003c/li\u003e\r\n  \u003cli\u003e{@link EntityChunk} - tracks entities currently located within the chunk.\u003c/li\u003e\r\n\u003c/ul\u003e\r\n\r\n\u003cp\u003eWorldChunks also manage their own lifecycle flags (ticking, generated, etc.)\r\nand provide the primary API for block modifications and light updates.\r\n"
+    },
+    {
+      "hash": "c2e1ee15beb4cc099a78baef65666b5e4082d13c2c52f96c12659bf8c499a77c",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.storage.ChunkStore:EXTENDS::IMPLEMENTS:WorldProvider",
+      "javadoc": "The ECS store for world chunks, managing their loading, generation, and persistence.\r\n\r\n\u003cp\u003eThe ChunkStore treats each world chunk as an ECS entity. This domain-specific\r\nECS handles static world data, block components (Tile Entities), and chunk-wide\r\nlogic. Chunks are loaded asynchronously from disk or generated on-the-fly via the\r\nregistered {@link IWorldGen}.\r\n\r\n\u003cp\u003eEntities in the ChunkStore are indexed by their chunk coordinate (long), and\r\nthe store manages the complex lifecycle of chunk states—from requested to loaded,\r\nticking, or marked for unload.\r\n"
+    },
+    {
+      "hash": "bd48859dfb27710af5e80e7c963d47629655f1b3546f9fc362799e0b1ce45778",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.storage.ChunkLoadState:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Tracks the loading or generation state of a specific chunk.\r\n"
+    },
+    {
+      "hash": "bb6ffc19dad0c7e97f92efe579aeaf0da067d915604377b888e4460f16fb160c",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.storage.ChunkLoaderSaverSetupSystem:EXTENDS:StoreSystem:IMPLEMENTS:",
+      "javadoc": "System responsible for initializing the chunk loader and saver when a ChunkStore\r\nis added to an ECS domain.\r\n"
+    },
+    {
+      "hash": "7d28beed8092a5f65170464d0e1f7d9af48a54f65aaf0c2b72594d04c84350ea",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.storage.LoadFuturePacketDataQuerySystem:EXTENDS:EntityDataSystem:IMPLEMENTS:",
+      "javadoc": "System for querying packet data for future chunk loads.\r\n"
+    },
+    {
+      "hash": "249164fd064ee16b3beaa8336df3f0b0dd2a2c888e797cb37ec008c5ea1515b6",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.storage.LoadPacketDataQuerySystem:EXTENDS:EntityDataSystem:IMPLEMENTS:",
+      "javadoc": "System for querying packet data for currently loading chunks.\r\n"
+    },
+    {
+      "hash": "a5553ba33586dc41882b0780c91501014c5a7c796cb60ba2e43dd0ad6716afab",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.storage.UnloadPacketDataQuerySystem:EXTENDS:EntityDataSystem:IMPLEMENTS:",
+      "javadoc": "System for querying packet data for chunks being unloaded.\r\n"
+    },
+    {
+      "hash": "beb5144b80128baa025eab86b7bab255e781f364bb84b968cd6e25ff3db56f88",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.storage.EntityStore:EXTENDS::IMPLEMENTS:WorldProvider",
+      "javadoc": "The primary ECS store for dynamic game entities (players, mobs, projectiles, etc.).\r\n\r\n\u003cp\u003eEach World instance owns one EntityStore. Entities are identified by UUID and\r\nnetwork ID, with reactive systems maintaining lookup indices for both. The static\r\nREGISTRY holds all registered component types and systems for this ECS domain.\r\n\r\n\u003cp\u003eContains two built-in reactive systems:\r\n\u003cul\u003e\r\n  \u003cli\u003e{@link UUIDSystem} - maintains the UUID-to-entity index\u003c/li\u003e\r\n  \u003cli\u003e{@link NetworkIdSystem} - assigns and tracks client-visible network IDs\u003c/li\u003e\r\n\u003c/ul\u003e\r\n"
+    },
+    {
+      "hash": "f9eee92432b752d10d20e5a3b1bbcfee35305a0f862c4735774ea2f9e690e12e",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.storage.NetworkIdSystem:EXTENDS:RefSystem:IMPLEMENTS:",
+      "javadoc": "Assigns and tracks unique network IDs for entities visible to clients.\r\n"
+    },
+    {
+      "hash": "c2f505368a48355fe650359d2ab070611abc4ad7dd0bfdd7020678665c485946",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.storage.UUIDSystem:EXTENDS:RefSystem:IMPLEMENTS:",
+      "javadoc": "Maintains the UUID-to-entity lookup index for the EntityStore.\r\n"
+    },
+    {
+      "hash": "d227053f4a8f8bbf52999a391f03580832b26a716a1ce43b6f056ebc1e3198f5",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.storage.IChunkLoader:EXTENDS:Closeable:IMPLEMENTS:",
+      "javadoc": "Interface for asynchronously loading chunk data from persistent storage.\r\n\r\n\u003cp\u003eThe loader is responsible for reading chunk data and converting it into\r\na {@link Holder} that can be integrated into the {@link ChunkStore}.\r\n"
+    },
+    {
+      "hash": "fc357c6fcf97d77a5f8c190f2c1adb6c5b00febeabea71c513ec0d17b0005d8a",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.storage.IChunkSaver:EXTENDS:Closeable:IMPLEMENTS:",
+      "javadoc": "Interface for asynchronously saving chunk data to persistent storage.\r\n\r\n\u003cp\u003eThe saver is responsible for serializing entity data from the {@link ChunkStore}\r\nand writing it to chunks on disk.\r\n"
+    },
+    {
+      "hash": "7e16432a6745fa87835c200bf99a9d2c506edda4c1159982e582589843b2828e",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.World:EXTENDS:TickingThread:IMPLEMENTS:ChunkAccessor,Executor,ExecutorMetric,IMessageReceiver,IWorldChunks",
+      "javadoc": "The primary container for a game world, running on its own dedicated thread.\r\n\r\n\u003cp\u003eA World is a heavy object that extends {@link TickingThread}. It manages its\r\nown {@link EntityStore} for dynamic entities and {@link ChunkStore} for static\r\nworld data and blocks. All logic within a world, including ECS ticking,\r\nphysics, and event dispatching, occurs on the World\u0027s dedicated thread.\r\n\r\n\u003cp\u003eWorlds are identified by a unique name and manage the lifecycle of players\r\nand chunks within their boundaries. Use {@link #execute(Runnable)} to safely\r\nschedule tasks to run on the World thread from other threads.\r\n"
+    },
+    {
+      "hash": "d34df1948a58cd17f8d9983ac60053bd6481acaa575dc3dca0e055fae0463ea6",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.WorldConfig:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Persistent configuration settings for a specific game world.\r\n\r\n\u003cp\u003eThis class manages all world-specific settings including the seed, world generator,\r\nchunk storage providers, game rules (PvP, fall damage), and environmental effects.\r\nIt is serialized to and from JSON/BSON using the {@link BuilderCodec} defined in {@link #CODEC}.\r\n"
+    },
+    {
+      "hash": "cc1de6c6fe13c8182f0721f0ae4ec9ec8f9a5924b6c9fe5d1be8ba334fb61b9b",
+      "type": "CLASS",
+      "signature": "CLASS:com.hypixel.hytale.server.core.universe.world.worldgen.IWorldGen:EXTENDS::IMPLEMENTS:",
+      "javadoc": "Interface for generating procedural world content.\r\n\r\n\u003cp\u003eThe world generator is responsible for creating {@link GeneratedChunk}s\r\nwhen they are not found in persistent storage. It operates asynchronously\r\nand is triggered by the {@link ChunkStore}.\r\n"
+    }
+  ]
+}
