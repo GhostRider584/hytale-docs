@@ -27,7 +27,7 @@ The documentation is extracted from annotated sources and published in a portabl
 
 ```kotlin
 plugins {
-    id("fr.smolder.hytale.dev") version "0.0.3"
+    id("fr.smolder.hytale.dev") version "0.0.4"
     id("fr.smolder.javadoc.migration") version "0.0.1"
 }
 ```
@@ -53,13 +53,48 @@ javadocMigration {
 }
 ```
 
-4. **Run the migration task**:
+4. **Disable auto-included sources** (optional but recommended):
+
+By default, the Hytale Gradle Plugin automatically includes decompiled sources in your IDE. If you want to use the migrated documented sources instead, disable this:
+
+```kotlin
+hytale {
+    includeDecompiledSources.set(false)
+}
+```
+
+5. **Run the migration task**:
 
 ```bash
 ./gradlew migrateJavadocs
 ```
 
-This will decompile your local Hytale server JAR and inject the community documentation into the sources, giving you fully documented code in your IDE.
+This will decompile your local Hytale server JAR and inject the community documentation into the sources.
+
+6. **Configure your IDE to use the documented sources**:
+
+After running the migration, you need to attach the generated sources to your project:
+
+**IntelliJ IDEA:**
+- Open **Project Structure** (`Ctrl+Alt+Shift+S` or `File > Project Structure`)
+- Go to **Modules** → Your module → **Dependencies**
+- Find the Hytale server JAR dependency
+- Click the **Edit** icon (pencil) next to it
+- In **Sources**, click **+** and select: `build/documented-sources` (or wherever you configured `outputDir`)
+- Click **OK** and apply changes
+
+Alternatively, you can configure this in Gradle:
+
+```kotlin
+idea {
+    module {
+        // Automatically attach documented sources in IntelliJ IDEA
+        sourceDirs.add(file("build/documented-sources"))
+    }
+}
+```
+
+Now when you navigate to Hytale classes in your IDE, you'll see the community-maintained documentation.
 
 ---
 
