@@ -37,7 +37,7 @@ plugins {
 ```kotlin
 javadocMigration {
     // Fetch documentation from the published JSON
-    docsUrl.set("https://.../hytale-docs.json")
+    docsUrl.set("https://raw.githubusercontent.com/GhostRider584/hytale-docs/refs/heads/master/javadocs-export.json")
     
     // Or use a local file
     // docsFile.set(file("path/to/hytale-docs.json"))
