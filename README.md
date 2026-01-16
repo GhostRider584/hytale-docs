@@ -21,7 +21,7 @@ The documentation is extracted from annotated sources and published in a portabl
 
 ### Applying Documentation to Your Project
 
-1. **Set up a Hytale plugin project** using the [Hytale Gradle Plugin](https://github.com/smoldermc/hytale-plugin).
+1. **Set up a Hytale plugin project** using the [Hytale Gradle Plugin](https://github.com/GhostRider584/hytale-gradle-plugin).
 
 2. **Add the Javadoc Migration Plugin** to your `build.gradle.kts`:
 
