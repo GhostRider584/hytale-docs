@@ -2,7 +2,7 @@
   "metadata": {
     "formatVersion": "1.0",
     "generatedFrom": "source-export",
-    "timestamp": 1768540903340
+    "timestamp": 1768694254128
   },
   "entries": [
     {
@@ -435,19 +435,19 @@
       "hash": "7b90100c6189e92ac78dbc1c58315be5933c9a31b8fa4da9932860b8768ebc2c",
       "type": "CLASS",
       "signature": "CLASS:com.hypixel.hytale.server.core.plugin.event.PluginEvent:EXTENDS::IMPLEMENTS:IEvent",
-      "javadoc": "Base class for all events related to a {@link PluginBase}.\r\n\r\n\u003cp\u003eThese events are dispatched through the global event bus and allow other \r\nsystems to react to changes in a plugin\u0027s state or lifecycle.\r\n"
+      "javadoc": "Base class for all events related to a {@link PluginBase}.\r\n\r\n\u003cp\u003eThese events are dispatched through the global event bus and allow other\r\nsystems to react to changes in a plugin\u0027s state or lifecycle.\r\n"
     },
     {
       "hash": "564af34d5cc7b123e3f2c23095e7b3684f2805f85d5a05ba692139a3b8040846",
       "type": "CLASS",
       "signature": "CLASS:com.hypixel.hytale.server.core.plugin.event.PluginSetupEvent:EXTENDS:PluginEvent:IMPLEMENTS:",
-      "javadoc": "Event dispatched when a {@link PluginBase} has finished its {@code setup()} phase.\r\n\r\n\u003cp\u003eThis event signals that the plugin has completed its static registrations \r\n(ECS, commands, events) and is ready for the start phase.\r\n"
+      "javadoc": "Event dispatched when a {@link PluginBase} has finished its {@code setup()} phase.\r\n\r\n\u003cp\u003eThis event signals that the plugin has completed its static registrations\r\n(ECS, commands, events) and is ready for the start phase.\r\n"
     },
     {
       "hash": "ed7608d3a58897648a43e3fa7a86c00a18a5c20df49c4ee06e7218a6815bfbae",
       "type": "CLASS",
       "signature": "CLASS:com.hypixel.hytale.server.core.plugin.JavaPlugin:EXTENDS:PluginBase:IMPLEMENTS:",
-      "javadoc": "The primary entry point for all Java-based Hytale plugins.\r\n\r\n\u003cp\u003eJavaPlugin extends the core {@link PluginBase} with features specific to third-party\r\nextensions. It manages the plugin\u0027s isolated {@link PluginClassLoader}, which provides \r\nclass isolation while allowing access to the Hytale Server API. \r\n\r\n\u003cp\u003eAdditionally, JavaPlugin handles the automatic registration of embedded asset packs \r\nif declared in the plugin\u0027s manifest. Subclasses should implement logic by overriding:\r\n\u003cul\u003e\r\n    \u003cli\u003e{@link #setup()}: For static registrations (ECS components, systems, event listeners).\u003c/li\u003e\r\n    \u003cli\u003e{@link #start()}: For logic that requires all plugins to have completed their setup phase.\u003c/li\u003e\r\n    \u003cli\u003e{@link #shutdown()}: For gracefully releasing resources and stopping background tasks.\u003c/li\u003e\r\n\u003c/ul\u003e\r\n"
+      "javadoc": "The primary entry point for all Java-based Hytale plugins.\r\n\r\n\u003cp\u003eJavaPlugin extends the core {@link PluginBase} with features specific to third-party\r\nextensions. It manages the plugin\u0027s isolated {@link PluginClassLoader}, which provides\r\nclass isolation while allowing access to the Hytale Server API.\r\n\r\n\u003cp\u003eAdditionally, JavaPlugin handles the automatic registration of embedded asset packs\r\nif declared in the plugin\u0027s manifest. Subclasses should implement logic by overriding:\r\n\u003cul\u003e\r\n    \u003cli\u003e{@link #setup()}: For static registrations (ECS components, systems, event listeners).\u003c/li\u003e\r\n    \u003cli\u003e{@link #start()}: For logic that requires all plugins to have completed their setup phase.\u003c/li\u003e\r\n    \u003cli\u003e{@link #shutdown()}: For gracefully releasing resources and stopping background tasks.\u003c/li\u003e\r\n\u003c/ul\u003e\r\n"
     },
     {
       "hash": "c4a7541e180d8d2838fd2f6c0803449a6cfe6ec8a972c0d8e17775bb17d2771b",
@@ -489,7 +489,7 @@
       "hash": "d4b485f7dae417048369c19f45c139ddc7908718ae0e1d8d1b3a11b722fa6376",
       "type": "CLASS",
       "signature": "CLASS:com.hypixel.hytale.server.core.plugin.PluginBase:EXTENDS::IMPLEMENTS:CommandOwner",
-      "javadoc": "The fundamental base class for all server modules and plugins in the Hytale ecosystem.\r\n\r\n\u003cp\u003ePluginBase provides the core infrastructure and registry access required for any\r\narchitectural component. It acts as a central hub for:\r\n\u003cul\u003e\r\n    \u003cli\u003e\u003cb\u003eRegistry Management:\u003c/b\u003e Access to ECS domains (EntityStore, ChunkStore), \r\n        event registries, command registries, and asset registries.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eLifecycle Handling:\u003c/b\u003e Orchestrates the transition through lifecycle states \r\n        (SETUP -\u003e START -\u003e ENABLED) and provides hooks for initialization and shutdown.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eConfiguration:\u003c/b\u003e Manages persistent configuration files associated with the module.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eMetrics and Logging:\u003c/b\u003e Provides a standardized logging context and metrics \r\n        reporting via the {@link MetricsRegistry}.\u003c/li\u003e\r\n\u003c/ul\u003e\r\n\r\n\u003cp\u003eFrom an architectural perspective, every significant logic container in the server \r\n(whether a built-in \"Module\" or a third-party \"Plugin\") extends this class to \r\nparticipate in the server\u0027s lifecycle and gain access to its core systems.\r\n"
+      "javadoc": "The fundamental base class for all server modules and plugins in the Hytale ecosystem.\r\n\r\n\u003cp\u003ePluginBase provides the core infrastructure and registry access required for any\r\narchitectural component. It acts as a central hub for:\r\n\u003cul\u003e\r\n    \u003cli\u003e\u003cb\u003eRegistry Management:\u003c/b\u003e Access to ECS domains (EntityStore, ChunkStore),\r\n        event registries, command registries, and asset registries.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eLifecycle Handling:\u003c/b\u003e Orchestrates the transition through lifecycle states\r\n        (SETUP -\u003e START -\u003e ENABLED) and provides hooks for initialization and shutdown.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eConfiguration:\u003c/b\u003e Manages persistent configuration files associated with the module.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eMetrics and Logging:\u003c/b\u003e Provides a standardized logging context and metrics\r\n        reporting via the {@link MetricsRegistry}.\u003c/li\u003e\r\n\u003c/ul\u003e\r\n\r\n\u003cp\u003eFrom an architectural perspective, every significant logic container in the server\r\n(whether a built-in \"Module\" or a third-party \"Plugin\") extends this class to\r\nparticipate in the server\u0027s lifecycle and gain access to its core systems.\r\n"
     },
     {
       "hash": "1ba182431c3e1b58712312c311341f9333f5e1b4531d4650e582aecf2c647f9c",
@@ -597,13 +597,13 @@
       "hash": "bcd20c3cd3652d07a7222445f28681a5b1f2c38ab02f5213f269f22c71bdd9df",
       "type": "METHOD",
       "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:void setup()",
-      "javadoc": "Lifecycle hook called during the setup phase.\r\n\r\n\u003cp\u003ePlugins should use this method to register their components, systems,\r\nevents, and other static registry entries. Complex logic should be avoided here.\r\n"
+      "javadoc": "Lifecycle hook called during the setup phase.\r\n\r\n\u003cp\u003eThis method is called early in the plugin lifecycle, before all core systems\r\nare fully initialized. Use this for basic initialization tasks such as:\r\n\u003cul\u003e\r\n    \u003cli\u003eRegistering event listeners\u003c/li\u003e\r\n    \u003cli\u003eRegistering commands\u003c/li\u003e\r\n    \u003cli\u003eSetting up configuration\u003c/li\u003e\r\n\u003c/ul\u003e\r\n\r\n\u003cp\u003e\u003cb\u003eWarning:\u003c/b\u003e Do \u003cb\u003eNOT\u003c/b\u003e register ECS components or systems in this method.\r\nWhen plugins are loaded via the {@code --mods} startup argument (as opposed to the\r\nmods folder), the initialization order differs and some core component types may not\r\nbe available yet. For example, {@code Player.getComponentType()} may return {@code null}\r\nduring this phase, causing {@code NullPointerException} when registering systems that\r\ndepend on player components.\r\n\r\n\u003cp\u003eFor ECS component and system registration, use {@link #start()} instead, which is\r\ncalled after all core systems are guaranteed to be initialized.\r\n\r\n@see #start()\r\n"
     },
     {
       "hash": "b9cf34b2d6b34f01fab8d150d1b734378db9aff43a044b5d55f69e0fa596feb1",
       "type": "METHOD",
       "signature": "METHOD:com.hypixel.hytale.server.core.plugin.PluginBase:void start()",
-      "javadoc": "Lifecycle hook called when the plugin is being enabled.\r\n\r\n\u003cp\u003eThis is called after all plugins have finished their setup phase.\r\nUse this for logic that requires all registries to be populated.\r\n"
+      "javadoc": "Lifecycle hook called when the plugin is being enabled.\r\n\r\n\u003cp\u003eThis is called after all plugins have finished their setup phase and all core\r\nsystems are fully initialized. This is the \u003cb\u003erecommended\u003c/b\u003e place to:\r\n\u003cul\u003e\r\n    \u003cli\u003eRegister ECS components via {@link #getEntityStoreRegistry()} or\r\n        {@link #getChunkStoreRegistry()}\u003c/li\u003e\r\n    \u003cli\u003eRegister ECS systems that depend on core component types (e.g., Player components)\u003c/li\u003e\r\n    \u003cli\u003ePerform any initialization that requires access to other plugins or core registries\u003c/li\u003e\r\n\u003c/ul\u003e\r\n\r\n\u003cp\u003e\u003cb\u003eNote:\u003c/b\u003e Unlike {@link #setup()}, all core component types are guaranteed to be\r\ninitialized when this method is called. This ensures that methods like\r\n{@code Player.getComponentType()} will return valid values rather than {@code null}.\r\n\r\n\u003cp\u003eExample of registering a system safely:\r\n\u003cpre\u003e{@code\r\n\r\n@Override protected void start() {\r\n    getEntityStoreRegistry().registerSystem(MyCustomSystem.create());\r\n}\r\n}\u003c/pre\u003e\r\n@see #setup()\r\n"
     },
     {
       "hash": "c93f0956296f13f8f6348b4bb5fdbf91ed0baa926e9d77fbc7e015f6ce5a6f59",
@@ -663,7 +663,7 @@
       "hash": "979a85da9cd4258f46928a4aac7b669e5af2ae1983020efce4b11cfbb0a1e74f",
       "type": "CLASS",
       "signature": "CLASS:com.hypixel.hytale.server.core.plugin.PluginManager:EXTENDS::IMPLEMENTS:",
-      "javadoc": "The central orchestrator for Hytale\u0027s plugin and module ecosystem.\r\n\r\n\u003cp\u003eThe PluginManager is a singleton responsible for the entire lifecycle of both internal \r\nserver modules and third-party plugins. Its primary responsibilities include:\r\n\u003cul\u003e\r\n    \u003cli\u003e\u003cb\u003eDiscovery:\u003c/b\u003e Scanning the classpath and the various plugin directories \r\n        ({@code builtin}, {@code mods}) for plugin manifest files.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eDependency Resolution:\u003c/b\u003e Analyzing plugin dependencies and determining \r\n         a valid load order, handling potential errors like \r\n        {@link MissingPluginDependencyException}.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eLifecycle Management:\u003c/b\u003e Transitioning all registered plugins through their \r\n        lifecycle states (SCAN -\u003e SETUP -\u003e START -\u003e ENABLED) and managing the \r\n        asynchronous cleanup during shutdown.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eClass Isolation:\u003c/b\u003e Managing the {@link PluginClassLoader} hierarchy to \r\n        ensure plugins operate in isolation while maintaining shared access to the \r\n        Server core API and shared libraries.\u003c/li\u003e\r\n\u003c/ul\u003e\r\n\r\n\u003cp\u003eThis manager is a critical component of the server\u0027s boot process, ensuring that all \r\ngame logic systems (implemented as plugins or modules) are correctly initialized \r\nbefore the universe and worlds are loaded.\r\n"
+      "javadoc": "The central orchestrator for Hytale\u0027s plugin and module ecosystem.\r\n\r\n\u003cp\u003eThe PluginManager is a singleton responsible for the entire lifecycle of both internal\r\nserver modules and third-party plugins. Its primary responsibilities include:\r\n\u003cul\u003e\r\n    \u003cli\u003e\u003cb\u003eDiscovery:\u003c/b\u003e Scanning the classpath and the various plugin directories\r\n        ({@code builtin}, {@code mods}) for plugin manifest files.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eDependency Resolution:\u003c/b\u003e Analyzing plugin dependencies and determining\r\n         a valid load order, handling potential errors like\r\n        {@link MissingPluginDependencyException}.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eLifecycle Management:\u003c/b\u003e Transitioning all registered plugins through their\r\n        lifecycle states (SCAN -\u003e SETUP -\u003e START -\u003e ENABLED) and managing the\r\n        asynchronous cleanup during shutdown.\u003c/li\u003e\r\n    \u003cli\u003e\u003cb\u003eClass Isolation:\u003c/b\u003e Managing the {@link PluginClassLoader} hierarchy to\r\n        ensure plugins operate in isolation while maintaining shared access to the\r\n        Server core API and shared libraries.\u003c/li\u003e\r\n\u003c/ul\u003e\r\n\r\n\u003cp\u003eThis manager is a critical component of the server\u0027s boot process, ensuring that all\r\ngame logic systems (implemented as plugins or modules) are correctly initialized\r\nbefore the universe and worlds are loaded.\r\n"
     },
     {
       "hash": "57e3310cc9fa298a1b8d5532336a9b5bf2b2d4b8f754a7b2a7ea7068f9250f7e",
@@ -699,13 +699,13 @@
       "hash": "7f95eb575ef80fce6401b5cd80dfd023b7812e61738c372da40745122f5ba6e4",
       "type": "CLASS",
       "signature": "CLASS:com.hypixel.hytale.server.core.plugin.registry.AssetRegistry:EXTENDS::IMPLEMENTS:",
-      "javadoc": "Handles the registration of custom assets for a specific plugin or module.\r\n\r\n\u003cp\u003eAssetRegistry acts as a proxy to the global asset system, ensuring that any \r\nassets registered by a plugin are tracked and can be properly cleaned up \r\nwhen the plugin is disabled or the server shuts down.\r\n"
+      "javadoc": "Handles the registration of custom assets for a specific plugin or module.\r\n\r\n\u003cp\u003eAssetRegistry acts as a proxy to the global asset system, ensuring that any\r\nassets registered by a plugin are tracked and can be properly cleaned up\r\nwhen the plugin is disabled or the server shuts down.\r\n"
     },
     {
       "hash": "a2fc2c16ba4958e08cc55c10b4f10e888b2743a4c19d7df5873e07ae35979776",
       "type": "CLASS",
       "signature": "CLASS:com.hypixel.hytale.server.core.plugin.registry.IRegistry:EXTENDS::IMPLEMENTS:",
-      "javadoc": "Base interface for all architectural registries in the Hytale server.\r\n\r\n\u003cp\u003eRegistries that implement this interface are expected to handle their \r\nown cleanup logic during the {@link #shutdown()} phase.\r\n"
+      "javadoc": "Base interface for all architectural registries in the Hytale server.\r\n\r\n\u003cp\u003eRegistries that implement this interface are expected to handle their\r\nown cleanup logic during the {@link #shutdown()} phase.\r\n"
     },
     {
       "hash": "c4efac83c30f3cae9fa03d8be8090b95c6c3db3f24aa379bf2efac3acd0dc661",
